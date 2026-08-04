@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ប្រព័ន្ធគ្រប់គ្រងការបញ្ចាំមាស និងប្លាទីន - Gold & Platinum Pawn System</title>
+    
+    <!-- Google Fonts for premium Khmer & English typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:ital,wght@0,300..700;1,300..700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Link to external stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- App Container -->
+    <div class="app-container">
+        <!-- Sidebar Navigation (Desktop) -->
+        <aside class="sidebar no-print">
+            <div class="brand">
+                <div class="brand-logo">
+                    <i class="fa-solid fa-gem"></i>
+                </div>
+                <div class="brand-info">
+                    <h2 id="sidebar-shop-name">ហាងបញ្ចាំ មាស-ប្លាទីន</h2>
+                    <span>ប្រព័ន្ធគ្រប់គ្រងបញ្ចាំ</span>
+                </div>
+            </div>
+            <nav class="nav-menu">
+                <button class="nav-item active" data-tab="dashboard">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>ផ្ទាំងគ្រប់គ្រង</span>
+                </button>
+                <button class="nav-item" data-tab="new-pawn">
+                    <i class="fa-solid fa-plus-circle"></i>
+                    <span>បញ្ចាំថ្មី</span>
+                </button>
+                <button class="nav-item" data-tab="pawn-list">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>បញ្ជីបញ្ចាំ</span>
+                </button>
+                <button class="nav-item" data-tab="settings">
+                    <i class="fa-solid fa-print"></i>
+                    <span>ម៉ាស៊ីនបោះពុម្ព</span>
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <p>ម៉ោងបច្ចុប្បន្ន</p>
+                <div class="live-time-box">
+                    <i class="fa-regular fa-clock"></i>
+                    <span id="sidebar-clock">--:--:--</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header (Mobile / Topbar) -->
+            <header class="topbar no-print">
+                <div class="topbar-left">
+                    <button class="menu-toggle" id="menu-toggle-btn">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <h1 class="page-title" id="page-title-text">ផ្ទាំងគ្រប់គ្រង</h1>
+                </div>
+                <div class="topbar-right">
+                    <div class="live-clock-top">
+                        <i class="fa-regular fa-calendar-days"></i>
+                        <span id="top-date">ថ្ងៃនេះ</span>
+                        <span class="divider">|</span>
+                        <i class="fa-regular fa-clock"></i>
+                        <span id="top-time">--:--:--</span>
+                    </div>
+                    <div class="shop-badge">
+                        <i class="fa-solid fa-store"></i>
+                        <span id="topbar-shop-name">ហាងបញ្ចាំ</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Tab Contents -->
+            <div class="tab-container">
+                <!-- 1. Dashboard Tab -->
+                <section class="tab-content active" id="tab-dashboard">
+                    <!-- Live Clock and Date Panel -->
+                    <div class="dashboard-hero card">
+                        <div class="hero-left">
+                            <h3>សូមស្វាគមន៍មកកាន់ប្រព័ន្ធបញ្ចាំ</h3>
+                            <p>គ្រប់គ្រងប្រតិបត្តិការបញ្ចាំមាស និងប្លាទីនរបស់អ្នកយ៉ាងមានប្រសិទ្ធភាព</p>
+                        </div>
+                        <div class="hero-right">
+                            <div class="clock-display">
+                                <div class="time" id="hero-time">--:--:--</div>
+                                <div class="date" id="hero-date">ថ្ងៃខែឆ្នាំបច្ចុប្បន្ន</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Cards -->
+                    <div class="stats-grid">
+                        <div class="stat-card card">
+                            <div class="stat-icon pawners-icon">
+                                <i class="fa-solid fa-users"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>ចំនួនអ្នកបញ្ចាំសរុប</h3>
+                                <div class="stat-value" id="stat-total-pawners">0 នាក់</div>
+                                <div class="stat-subtext">អ្នកបញ្ចាំកំពុងសកម្ម</div>
+                            </div>
+                        </div>
+                        <div class="stat-card card">
+                            <div class="stat-icon riel-icon">
+                                <i class="fa-solid fa-money-bill-wave"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>ដើមទុនបញ្ចាំ (រៀល)</h3>
+                                <div class="stat-value text-riel" id="stat-capital-riel">0 ៛</div>
+                                <div class="stat-subtext">ប្រាក់រៀលដែលបានបញ្ចេញ</div>
+                            </div>
+                        </div>
+                        <div class="stat-card card">
+                            <div class="stat-icon usd-icon">
+                                <i class="fa-solid fa-dollar-sign"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>ដើមទុនបញ្ចាំ (ដុល្លារ)</h3>
+                                <div class="stat-value text-usd" id="stat-capital-usd">$0.00</div>
+                                <div class="stat-subtext">ប្រាក់ដុល្លារដែលបានបញ្ចេញ</div>
+                            </div>
+                        </div>
+                        <div class="stat-card card">
+                            <div class="stat-icon interest-riel-icon">
+                                <i class="fa-solid fa-chart-line-up"></i>
+                                <i class="fa-solid fa-chart-line"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>ការប្រាក់រំពឹងទុកប្រចាំខែ (រៀល)</h3>
+                                <div class="stat-value text-riel" id="stat-interest-riel">0 ៛</div>
+                                <div class="stat-subtext">ការប្រាក់សរុបប្រចាំខែជារៀល</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Pawns Section -->
+                    <div class="recent-pawns-section card">
+                        <div class="section-header">
+                            <h2><i class="fa-solid fa-clock-rotate-left"></i> របាយការណ៍អ្នកបញ្ចាំថ្មីៗ</h2>
+                            <button class="btn btn-primary btn-sm" id="btn-view-all-dashboard">មើលទាំងអស់</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table" id="table-recent-pawns">
+                                <thead>
+                                    <tr>
+                                        <th>លេខសម្គាល់</th>
+                                        <th>ឈ្មោះ</th>
+                                        <th>លេខទូរសព្ទ</th>
+                                        <th>អាសយដ្ឋាន</th>
+                                        <th>គ្រឿងបញ្ចាំ</th>
+                                        <th>ទម្ងន់</th>
+                                        <th>ទឹកប្រាក់ខ្ចី</th>
+                                        <th>ថ្ងៃបញ្ចាំ</th>
+                                        <th>ស្ថានភាព</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-pawns-list">
+                                    <!-- Dynamic rows loaded by JS -->
+                                    <tr>
+                                        <td colspan="9" class="text-center py-4">មិនទាន់មានទិន្នន័យបញ្ចាំនៅឡើយទេ</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Recent Redemptions Section -->
+                    <div class="recent-pawns-section card" style="margin-top: 24px;">
+                        <div class="section-header">
+                            <h2><i class="fa-solid fa-handshake text-gold"></i> ប្រវត្តិលោះគ្រឿងបញ្ចាំថ្មីៗ</h2>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table" id="table-recent-redemptions">
+                                <thead>
+                                    <tr>
+                                        <th>លេខសម្គាល់</th>
+                                        <th>ឈ្មោះអ្នកបញ្ចាំ</th>
+                                        <th>លេខទូរសព្ទ</th>
+                                        <th>គ្រឿងបញ្ចាំ</th>
+                                        <th>ប្រាក់ដើមលោះ</th>
+                                        <th>ការប្រាក់សរុប</th>
+                                        <th>ថ្ងៃបញ្ចាំ</th>
+                                        <th>ថ្ងៃលោះវិញ</th>
+                                        <th>ស្ថានភាព</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-redemptions-list">
+                                    <!-- Dynamic rows loaded by JS -->
+                                    <tr>
+                                        <td colspan="9" class="text-center py-4">មិនទាន់មានប្រវត្តិលោះនៅឡើយទេ</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. New Pawn Tab -->
+                <section class="tab-content" id="tab-new-pawn">
+                    <div class="form-container card">
+                        <div class="form-header">
+                            <h2><i class="fa-solid fa-circle-plus text-gold"></i> បញ្ចូលព័ត៌មានបញ្ចាំថ្មី</h2>
+                            <span class="sn-badge" id="form-serial-number">SN-0000001</span>
+                        </div>
+                        <form id="new-pawn-form">
+                            <div class="form-grid">
+                                <!-- Customer Info Section -->
+                                <div class="form-section-title">
+                                    <i class="fa-solid fa-user"></i> ព័ត៌មានអ្នកបញ្ចាំ
+                                </div>
+                                <div class="form-group">
+                                    <label for="pawn-customer-name">ឈ្មោះអ្នកបញ្ចាំ <span class="required">*</span></label>
+                                    <input type="text" id="pawn-customer-name" name="customerName" required placeholder="ឧ. កែវ មុន្នី">
+                                </div>
+                                <div class="form-group">
+                                    <label for="pawn-customer-phone">លេខទូរសព្ទ <span class="required">*</span></label>
+                                    <input type="tel" id="pawn-customer-phone" name="customerPhone" required placeholder="ឧ. 012 345 678">
+                                </div>
+                                <div class="form-group">
+                                    <label for="pawn-customer-address">អាសយដ្ឋាន <span class="required">*</span></label>
+                                    <select id="pawn-customer-address" name="customerAddressSelect" required>
+                                        <option value="" disabled selected>--- ជ្រើសរើសអាសយដ្ឋាន ---</option>
+                                        <option value="ព្រៃម្នាស់">ព្រៃម្នាស់</option>
+                                        <option value="ដូនណូយ">ដូនណូយ</option>
+                                        <option value="សំឡី">សំឡី</option>
+                                        <option value="ស្វាយ">ស្វាយ</option>
+                                        <option value="ត្នោត">ត្នោត</option>
+                                        <option value="ត្រោក">ត្រោក</option>
+                                        <option value="ព្រៃរបឺស">ព្រៃរបឺស</option>
+                                        <option value="ពោធិ៍ម្អម">ពោធិ៍ម្អម</option>
+                                        <option value="ច្រេស">ច្រេស</option>
+                                        <option value="ខ្សែត្រ">ខ្សែត្រ</option>
+                                        <option value="ផ្សេងៗ">ផ្សេងៗ (វាយបញ្ចូលដោយខ្លួនឯង)</option>
+                                    </select>
+                                    <input type="text" id="pawn-customer-address-custom" name="customerAddressCustom" class="custom-input-field hidden" placeholder="វាយបញ្ចូលអាសយដ្ឋានផ្សេងទៀត">
+                                </div>
+
+                                <!-- Pawn Item Info Section -->
+                                <div class="form-section-title">
+                                    <i class="fa-solid fa-gem"></i> ព័ត៌មានគ្រឿងបញ្ចាំ និងលក្ខខណ្ឌ
+                                </div>
+                                <div class="form-group">
+                                    <label for="pawn-item-type">ប្រភេទគ្រឿងបញ្ចាំ <span class="required">*</span></label>
+                                    <select id="pawn-item-type" name="itemType" required>
+                                        <option value="មាស">មាស (Gold)</option>
+                                        <option value="ផ្លាកទីន">ផ្លាកទីន (Platinum)</option>
+                                        <option value="ប្លាទីនទឹក៧៥">ប្លាទីនទឹក៧៥ (Platinum 75%)</option>
+                                        <option value="ផ្សេងៗ">ផ្សេងៗ</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="pawn-item-desc">សម្គាល់គ្រឿងបញ្ចាំ <span class="required">*</span></label>
+                                    <select id="pawn-item-desc" name="itemDescSelect" required>
+                                        <option value="" disabled selected>--- ជ្រើសរើសប្រភេទគ្រឿង ---</option>
+                                        <option value="ខ្សែក">ខ្សែក (Necklace)</option>
+                                        <option value="ខ្សែដៃ">ខ្សែដៃ (Bracelet)</option>
+                                        <option value="ចិញ្ចៀន">ចិញ្ចៀន (Ring)</option>
+                                        <option value="ក្រវិល">ក្រវិល (Earrings)</option>
+                                        <option value="កងដៃ">កងដៃ (Bangle)</option>
+                                        <option value="ផ្សេងៗ">ផ្សេងៗ (វាយបញ្ចូលដោយខ្លួនឯង)</option>
+                                    </select>
+                                    <input type="text" id="pawn-item-desc-custom" name="itemDescCustom" class="custom-input-field hidden" placeholder="វាយបញ្ចូលសម្គាល់គ្រឿងបញ្ចាំ">
+                                </div>
+                                
+                                <div class="form-group-triple">
+                                    <label>ទម្ងន់ <span class="required">*</span></label>
+                                    <div class="triple-inputs">
+                                        <div class="input-unit">
+                                            <input type="number" id="pawn-weight-chi" name="weightChi" min="0" value="0" placeholder="ជី">
+                                            <span>ជី</span>
+                                        </div>
+                                        <div class="input-unit">
+                                            <input type="number" id="pawn-weight-hun" name="weightHun" min="0" max="9" value="0" placeholder="ហ៊ុន">
+                                            <span>ហ៊ុន</span>
+                                        </div>
+                                        <div class="input-unit">
+                                            <input type="number" id="pawn-weight-ly" name="weightLy" min="0" max="9" value="0" placeholder="លី">
+                                            <span>លី</span>
+                                        </div>
+                                    </div>
+                                    <span class="help-text">១ជី = ១០ហ៊ុន, ១ហ៊ុន = ១០លី</span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="pawn-amount">ខ្ចីប្រាក់ចំនួន <span class="required">*</span></label>
+                                    <div class="currency-input-group">
+                                        <input type="number" id="pawn-amount" name="amount" required min="1" placeholder="ចំនួនប្រាក់ខ្ចី">
+                                        <select id="pawn-currency" name="currency">
+                                            <option value="រៀល">រៀល (៛)</option>
+                                            <option value="ដុល្លារ">ដុល្លារ ($)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="pawn-interest-rate">ការប្រាក់ក្នុង១ថ្ងៃ (៛) <span class="required">*</span></label>
+                                    <div class="input-unit">
+                                        <input type="number" id="pawn-interest-rate" name="interestRate" required min="500" step="any" placeholder="៥០០">
+                                        <span>៛</span>
+                                    </div>
+                                    <span class="help-text" id="interest-rate-help">ការប្រាក់ត្រូវបង្ហាញចាប់ពី ៥០០រៀល ឡើងទៅ</span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="pawn-date">ថ្ងៃបញ្ចាំ <span class="required">*</span></label>
+                                    <input type="date" id="pawn-date" name="pawnDate" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="pawn-due-date">ថ្ងៃកំណត់លោះ (១ខែ) <span class="required">*</span></label>
+                                    <input type="date" id="pawn-due-date" name="dueDate" required>
+                                </div>
+                            </div>
+
+                            <!-- Calculations preview box -->
+                            <div class="calc-preview-box">
+                                <div class="calc-row">
+                                    <span>ទម្ងន់សរុប៖</span>
+                                    <strong id="calc-weight-text">0 ជី 0 ហ៊ុន 0 លី</strong>
+                                </div>
+                                <div class="calc-row text-gold-highlight">
+                                    <span>ការប្រាក់ត្រូវបង់ក្នុង ១ខែ (៣០ថ្ងៃ)៖</span>
+                                    <strong id="calc-monthly-interest">0 ៛</strong>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-secondary" id="btn-clear-form">
+                                    <i class="fa-solid fa-eraser"></i> សម្អាត
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa-solid fa-floppy-disk"></i> រក្សាទុកទិន្នន័យ
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- 3. Pawn List Tab -->
+                <section class="tab-content" id="tab-pawn-list">
+                    <!-- Filters Card -->
+                    <div class="filter-card card">
+                        <div class="filter-grid">
+                            <div class="search-box">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="search-input" placeholder="ស្វែងរកតាម៖ ឈ្មោះ, លេខទូរសព្ទ, លេខសម្គាល់...">
+                            </div>
+                            <div class="filter-group">
+                                <label for="filter-address">តម្រងអាសយដ្ឋាន៖</label>
+                                <select id="filter-address">
+                                    <option value="">ទាំងអស់</option>
+                                    <option value="ព្រៃម្នាស់">ព្រៃម្នាស់</option>
+                                    <option value="ដូនណូយ">ដូនណូយ</option>
+                                    <option value="សំឡី">សំឡី</option>
+                                    <option value="ស្វាយ">ស្វាយ</option>
+                                    <option value="ត្នោត">ត្នោត</option>
+                                    <option value="ត្រោក">ត្រោក</option>
+                                    <option value="ព្រៃរបឺស">ព្រៃរបឺស</option>
+                                    <option value="ពោធិ៍ម្អម">ពោធិ៍ម្អម</option>
+                                    <option value="ច្រេស">ច្រេស</option>
+                                    <option value="ខ្សែត្រ">ខ្សែត្រ</option>
+                                    <option value="ផ្សេងៗ">ផ្សេងៗ</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label for="filter-status">ស្ថានភាព៖</label>
+                                <select id="filter-status">
+                                    <option value="">ទាំងអស់</option>
+                                    <option value="សកម្ម">សកម្ម (Active)</option>
+                                    <option value="បានលោះ">បានលោះ (Redeemed)</option>
+                                    <option value="ហួសកំណត់">ហួសកំណត់ (Overdue)</option>
+                                </select>
+                            </div>
+                            <div class="filter-actions-right">
+                                <button class="btn btn-secondary" id="btn-reset-filters">
+                                    <i class="fa-solid fa-rotate-left"></i> ជម្រះ
+                                </button>
+                                <button class="btn btn-info" id="btn-print-records-report">
+                                    <i class="fa-solid fa-print"></i> បោះពុម្ពរបាយការណ៍
+                                </button>
+                                <button class="btn btn-primary" id="btn-tab-add-new">
+                                    <i class="fa-solid fa-plus"></i> បញ្ចាំថ្មី
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Records Table -->
+                    <div class="records-container card">
+                        <div class="table-responsive">
+                            <table class="table" id="table-pawn-records">
+                                <thead>
+                                    <tr>
+                                        <th>លេខសម្គាល់</th>
+                                        <th>ឈ្មោះអ្នកបញ្ចាំ</th>
+                                        <th>លេខទូរសព្ទ</th>
+                                        <th>អាសយដ្ឋាន</th>
+                                        <th>គ្រឿងបញ្ចាំ</th>
+                                        <th>ទម្ងន់</th>
+                                        <th>ទឹកប្រាក់ខ្ចី</th>
+                                        <th>ការប្រាក់/ថ្ងៃ</th>
+                                        <th>ថ្ងៃបញ្ចាំ - ថ្ងៃលោះ</th>
+                                        <th>ស្ថានភាព</th>
+                                        <th class="text-center">សកម្មភាព</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pawn-records-list">
+                                    <!-- Dynamic records populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. Settings & Printer Tab -->
+                <section class="tab-content" id="tab-settings">
+                    <div class="settings-grid">
+                        <!-- Shop Settings Panel -->
+                        <div class="settings-card card">
+                            <div class="card-header">
+                                <h2><i class="fa-solid fa-shop text-gold"></i> កែប្រែព័ត៌មានហាង</h2>
+                            </div>
+                            <form id="shop-settings-form">
+                                <div class="form-group">
+                                    <label for="settings-shop-name">ឈ្មោះហាង <span class="required">*</span></label>
+                                    <input type="text" id="settings-shop-name" name="shopName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="settings-shop-phone">លេខទូរសព្ទហាង <span class="required">*</span></label>
+                                    <input type="text" id="settings-shop-phone" name="shopPhone" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="settings-shop-address">អាសយដ្ឋានហាង <span class="required">*</span></label>
+                                    <input type="text" id="settings-shop-address" name="shopAddress" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="settings-receipt-footer">សារខាងក្រោមវិក្កយបត្រ <span class="required">*</span></label>
+                                    <textarea id="settings-receipt-footer" name="receiptFooter" rows="3" required></textarea>
+                                </div>
+                                <div class="form-actions-left">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fa-solid fa-save"></i> រក្សាទុកព័ត៌មានហាង
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Printer Connection Panel -->
+                        <div class="settings-card card">
+                            <div class="card-header">
+                                <h2><i class="fa-solid fa-print text-gold"></i> កំណត់ម៉ាស៊ីនបោះពុម្ព (Bluetooth)</h2>
+                            </div>
+                            <div class="printer-box">
+                                <div class="printer-status-bar">
+                                    <div class="status-indicator disconnected" id="printer-status-indicator"></div>
+                                    <span class="status-text" id="printer-status-text">មិនទាន់បានភ្ជាប់</span>
+                                </div>
+                                
+                                <div class="printer-info-box hidden" id="connected-printer-info">
+                                    <p><strong>ឈ្មោះឧបករណ៍៖</strong> <span id="printer-device-name">N/A</span></p>
+                                    <p><strong>ស្ថានភាព៖</strong> <span class="text-success">បានភ្ជាប់រួចរាល់</span></p>
+                                </div>
+
+                                <div class="bluetooth-controls">
+                                    <button class="btn btn-primary btn-block" id="btn-connect-printer">
+                                        <i class="fa-solid fa-bluetooth"></i> ស្វែងរក និងភ្ជាប់ Bluetooth Printer
+                                    </button>
+                                    <button class="btn btn-danger btn-block hidden" id="btn-disconnect-printer">
+                                        <i class="fa-solid fa-circle-xmark"></i> ផ្ដាច់ការភ្ជាប់
+                                    </button>
+                                </div>
+
+                                <div class="printer-config-options">
+                                    <h3>ការកំណត់ទំហំក្រដាស</h3>
+                                    <div class="radio-group">
+                                        <label class="radio-label">
+                                            <input type="radio" name="printerPaperSize" value="58" checked>
+                                            <span>ក្រដាស 58mm (ទូទៅសម្រាប់ Bluetooth)</span>
+                                        </label>
+                                        <label class="radio-label">
+                                            <input type="radio" name="printerPaperSize" value="80">
+                                            <span>ក្រដាស 80mm</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="printer-test-panel">
+                                    <button class="btn btn-secondary btn-sm" id="btn-test-print" disabled>
+                                        <i class="fa-solid fa-vial"></i> បោះពុម្ពសាកល្បង
+                                    </button>
+                                    <p class="help-text mt-2">ការបោះពុម្ពសាកល្បងនឹងផ្ញើអត្ថបទសាកល្បងទៅកាន់ម៉ាស៊ីនបោះពុម្ពដែលបានភ្ជាប់។</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Bottom Navigation Bar (Mobile Viewports Only) -->
+        <nav class="mobile-nav no-print">
+            <button class="mobile-nav-item active" data-tab="dashboard">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>ផ្ទាំងគ្រប់គ្រង</span>
+            </button>
+            <button class="mobile-nav-item" data-tab="new-pawn">
+                <i class="fa-solid fa-plus-circle"></i>
+                <span>បញ្ចាំថ្មី</span>
+            </button>
+            <button class="mobile-nav-item" data-tab="pawn-list">
+                <i class="fa-solid fa-list-check"></i>
+                <span>បញ្ជីបញ្ចាំ</span>
+            </button>
+            <button class="mobile-nav-item" data-tab="settings">
+                <i class="fa-solid fa-print"></i>
+                <span>ម៉ាស៊ីនបោះពុម្ព</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Modal: View & Print Pawn Record Details -->
+    <div class="modal no-print" id="detail-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-file-invoice text-gold"></i> ព័ត៌មានលម្អិត និងបោះពុម្ពវិក្កយបត្រ</h2>
+                <button class="modal-close" id="btn-close-detail-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Tabs to choose printing interface type -->
+                <div class="modal-tabs">
+                    <button class="modal-tab-btn active" id="btn-tab-preview-system">
+                        <i class="fa-solid fa-desktop"></i> បោះពុម្ពធម្មតា (កុំព្យូទ័រ)
+                    </button>
+                    <button class="modal-tab-btn" id="btn-tab-preview-bluetooth">
+                        <i class="fa-solid fa-mobile-screen-button"></i> បោះពុម្ព Bluetooth (ទូរសព្ទ)
+                    </button>
+                </div>
+
+                <!-- Printer view 1: Standard computer receipt preview -->
+                <div class="preview-panel" id="preview-panel-system">
+                    <p class="preview-instruction"><i class="fa-solid fa-info-circle text-info"></i> បង្ហាញគំរូនៃវិក្កយបត្រដែលនឹងត្រូវបោះពុម្ព។ វិក្កយបត្រចំនួនពីរច្បាប់នឹងត្រូវបង្ហាញរួមគ្នា។</p>
+                    
+                    <div class="system-print-wrapper" id="system-print-wrapper-preview">
+                        <!-- Filled by Javascript dynamically -->
+                    </div>
+                </div>
+
+                <!-- Printer view 2: Bluetooth thermal canvas image preview -->
+                <div class="preview-panel hidden" id="preview-panel-bluetooth">
+                    <p class="preview-instruction"><i class="fa-solid fa-triangle-exclamation text-warning"></i> សម្រាប់ការបោះពុម្ពតាមទូរសព្ទដៃ Bluetooth៖ អត្ថបទទាំងអស់នឹងត្រូវបំលែងជារូបភាពដើម្បីបោះពុម្ពបានច្បាស់ល្អ។</p>
+                    
+                    <div class="bluetooth-status-banner" id="modal-bluetooth-status">
+                        <i class="fa-solid fa-bluetooth text-primary"></i> មិនទាន់បានភ្ជាប់ Bluetooth Printer ទេ! <a href="#" id="modal-link-to-settings">ទៅកាន់ការកំណត់ដើម្បីភ្ជាប់</a>
+                    </div>
+                    
+                    <div class="canvas-preview-container">
+                        <div class="canvas-scroll-box">
+                            <canvas id="bluetooth-receipt-canvas-1"></canvas>
+                            <div class="canvas-separator">សន្លឹកទី២ (ច្បាប់សង្ខេប)</div>
+                            <canvas id="bluetooth-receipt-canvas-2"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="btn-modal-cancel">បិទ</button>
+                
+                <!-- Action button dynamically changes depending on preview type selected -->
+                <button class="btn btn-primary" id="btn-modal-execute-print">
+                    <i class="fa-solid fa-print"></i> បោះពុម្ពវិក្កយបត្រ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Pawn Record -->
+    <div class="modal no-print" id="edit-modal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-pen-to-square text-gold"></i> កែប្រែព័ត៌មានបញ្ចាំ</h2>
+                <button class="modal-close" id="btn-close-edit-modal">&times;</button>
+            </div>
+            <form id="edit-pawn-form">
+                <div class="modal-body">
+                    <input type="hidden" id="edit-pawn-id">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>លេខសម្គាល់</label>
+                            <input type="text" id="edit-serial-number" readonly class="readonly-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-customer-name">ឈ្មោះអ្នកបញ្ចាំ <span class="required">*</span></label>
+                            <input type="text" id="edit-customer-name" name="customerName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-customer-phone">លេខទូរសព្ទ <span class="required">*</span></label>
+                            <input type="tel" id="edit-customer-phone" name="customerPhone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-customer-address">អាសយដ្ឋាន <span class="required">*</span></label>
+                            <select id="edit-customer-address" name="customerAddressSelect" required>
+                                <option value="ព្រៃម្នាស់">ព្រៃម្នាស់</option>
+                                <option value="ដូនណូយ">ដូនណូយ</option>
+                                <option value="សំឡី">សំឡី</option>
+                                <option value="ស្វាយ">ស្វាយ</option>
+                                <option value="ត្នោត">ត្នោត</option>
+                                <option value="ត្រោក">ត្រោក</option>
+                                <option value="ព្រៃរបឺស">ព្រៃរបឺស</option>
+                                <option value="ពោធិ៍ម្អម">ពោធិ៍ម្អម</option>
+                                <option value="ច្រេស">ច្រេស</option>
+                                <option value="ខ្សែត្រ">ខ្សែត្រ</option>
+                                <option value="ផ្សេងៗ">ផ្សេងៗ (វាយបញ្ចូលដោយខ្លួនឯង)</option>
+                            </select>
+                            <input type="text" id="edit-customer-address-custom" name="customerAddressCustom" class="custom-input-field hidden" placeholder="វាយបញ្ចូលអាសយដ្ឋានផ្សេងទៀត">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-item-type">ប្រភេទគ្រឿងបញ្ចាំ <span class="required">*</span></label>
+                            <select id="edit-item-type" name="itemType" required>
+                                <option value="មាស">មាស (Gold)</option>
+                                <option value="ផ្លាកទីន">ផ្លាកទីន (Platinum)</option>
+                                <option value="ប្លាទីនទឹក៧៥">ប្លាទីនទឹក៧៥ (Platinum 75%)</option>
+                                <option value="ផ្សេងៗ">ផ្សេងៗ</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-item-desc">សម្គាល់គ្រឿងបញ្ចាំ <span class="required">*</span></label>
+                            <select id="edit-item-desc" name="itemDescSelect" required>
+                                <option value="ខ្សែក">ខ្សែក (Necklace)</option>
+                                <option value="ខ្សែដៃ">ខ្សែដៃ (Bracelet)</option>
+                                <option value="ចិញ្ចៀន">ចិញ្ចៀន (Ring)</option>
+                                <option value="ក្រវិល">ក្រវិល (Earrings)</option>
+                                <option value="កងដៃ">កងដៃ (Bangle)</option>
+                                <option value="ផ្សេងៗ">ផ្សេងៗ (វាយបញ្ចូលដោយខ្លួនឯង)</option>
+                            </select>
+                            <input type="text" id="edit-item-desc-custom" name="itemDescCustom" class="custom-input-field hidden" placeholder="វាយបញ្ចូលសម្គាល់គ្រឿងបញ្ចាំ">
+                        </div>
+                        <div class="form-group-triple">
+                            <label>ទម្ងន់ <span class="required">*</span></label>
+                            <div class="triple-inputs">
+                                <div class="input-unit">
+                                    <input type="number" id="edit-weight-chi" name="weightChi" min="0" value="0">
+                                    <span>ជី</span>
+                                </div>
+                                <div class="input-unit">
+                                    <input type="number" id="edit-weight-hun" name="weightHun" min="0" max="9" value="0">
+                                    <span>ហ៊ុន</span>
+                                </div>
+                                <div class="input-unit">
+                                    <input type="number" id="edit-weight-ly" name="weightLy" min="0" max="9" value="0">
+                                    <span>លី</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-amount">ខ្ចីប្រាក់ចំនួន <span class="required">*</span></label>
+                            <div class="currency-input-group">
+                                <input type="number" id="edit-amount" name="amount" required min="1">
+                                <select id="edit-currency" name="currency">
+                                    <option value="រៀល">រៀល (៛)</option>
+                                    <option value="ដុល្លារ">ដុល្លារ ($)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-interest-rate">ការប្រាក់ក្នុង១ថ្ងៃ (៛) <span class="required">*</span></label>
+                            <div class="input-unit">
+                                <input type="number" id="edit-interest-rate" name="interestRate" required min="500" step="any">
+                                <span>៛</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-date">ថ្ងៃបញ្ចាំ <span class="required">*</span></label>
+                            <input type="date" id="edit-date" name="pawnDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-due-date">ថ្ងៃកំណត់លោះ (១ខែ) <span class="required">*</span></label>
+                            <input type="date" id="edit-due-date" name="dueDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-status">ស្ថានភាព <span class="required">*</span></label>
+                            <select id="edit-status" name="status" required>
+                                <option value="សកម្ម">សកម្ម (Active)</option>
+                                <option value="បានលោះ">បានលោះ (Redeemed)</option>
+                                <option value="ហួសកំណត់">ហួសកំណត់ (Overdue)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="btn-close-edit-modal-btn">បោះបង់</button>
+                    <button type="submit" class="btn btn-primary">រក្សាទុកការកែប្រែ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Borrow More (ខ្ចីថែម) -->
+    <div class="modal no-print" id="borrow-more-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-hand-holding-dollar text-gold"></i> ខ្ចីប្រាក់បន្ថែម - <span id="borrow-more-sn">SN-0000000</span></h2>
+                <button class="modal-close" id="btn-close-borrow-more-modal">&times;</button>
+            </div>
+            <form id="borrow-more-form">
+                <div class="modal-body">
+                    <input type="hidden" id="borrow-more-id">
+                    <div style="background-color: rgba(212, 175, 55, 0.05); border: 1px solid var(--border-color); padding: 16px; border-radius: 8px; margin-bottom: 16px; font-size: 13px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div>ឈ្មោះអ្នកបញ្ចាំ៖ <strong id="borrow-more-customer-name">--</strong></div>
+                        <div>លេខទូរសព្ទ៖ <strong id="borrow-more-customer-phone">--</strong></div>
+                        <div>ប្រាក់ខ្ចីបច្ចុប្បន្ន៖ <strong id="borrow-more-current-amount" class="text-riel">--</strong></div>
+                        <div>ការប្រាក់បច្ចុប្បន្ន៖ <strong id="borrow-more-current-interest">--</strong></div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label for="borrow-more-add-amount">ចំនួនប្រាក់ខ្ចីបន្ថែម (<span id="borrow-more-currency-label">រៀល</span>) <span class="required">*</span></label>
+                        <input type="number" id="borrow-more-add-amount" required min="1" placeholder="វាយចំនួនប្រាក់ខ្ចីបន្ថែម">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label for="borrow-more-new-rate">ការប្រាក់ក្នុង១ថ្ងៃសរុបថ្មី (៛) <span class="required">*</span></label>
+                        <input type="number" id="borrow-more-new-rate" required min="0" step="any" placeholder="ការប្រាក់ប្រចាំថ្ងៃថ្មី">
+                        <span class="help-text" id="borrow-more-rate-help">ការប្រាក់នឹងគណនាឡើងវិញដោយស្វ័យប្រវត្តិតាមសមាមាត្រ</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="borrow-more-date">ថ្ងៃខ្ចីបន្ថែម <span class="required">*</span></label>
+                        <input type="date" id="borrow-more-date" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel-borrow-more">បោះបង់</button>
+                    <button type="submit" class="btn btn-primary">យល់ព្រមខ្ចីថែម</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Redeem (លោះវិញ) -->
+    <div class="modal no-print" id="redeem-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-handshake text-gold"></i> ទូទាត់លោះគ្រឿងបញ្ចាំ - <span id="redeem-sn">SN-0000000</span></h2>
+                <button class="modal-close" id="btn-close-redeem-modal">&times;</button>
+            </div>
+            <form id="redeem-form">
+                <div class="modal-body">
+                    <input type="hidden" id="redeem-id">
+                    <div class="receipt-card" style="background-color: #fff; color: #333; padding: 20px; border-radius: 8px; border: 1px solid #ddd; box-shadow: none;">
+                        <h3 style="text-align: center; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 12px; font-size: 14px; font-weight: bold; color: #222;">សេចក្តីសង្ខេបនៃការលោះវិញ</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; line-height: 1.8; color: #444;">
+                           <div>ឈ្មោះ៖ <strong id="redeem-customer-name" style="color: #000;">--</strong></div>
+                           <div>លេខទូរសព្ទ៖ <strong id="redeem-customer-phone" style="color: #000;">--</strong></div>
+                           <div>ថ្ងៃបញ្ចាំ៖ <strong id="redeem-pawn-date" style="color: #000;">--</strong></div>
+                           <div>ថ្ងៃលោះវិញ៖ <strong id="redeem-date-text" style="color: #000;">--</strong></div>
+                           <div style="grid-column: span 2;">គ្រឿងបញ្ចាំ៖ <strong id="redeem-item-name" style="color: #000;">--</strong></div>
+                           <div style="grid-column: span 2; border-top: 1px dashed #eee; padding-top: 8px; margin-top: 4px;">ចំនួនថ្ងៃបញ្ចាំសរុប៖ <strong id="redeem-days-elapsed" style="color: var(--gold); font-size: 14px;">0 ថ្ងៃ</strong></div>
+                           <div>ប្រាក់ដើមខ្ចី៖ <strong id="redeem-capital-amount" style="font-size: 13px; color: #000;">--</strong></div>
+                           <div>ការប្រាក់/ថ្ងៃ៖ <strong id="redeem-daily-rate" style="color: #000;">--</strong></div>
+                           <div style="grid-column: span 2; border-top: 1px dashed #eee; padding-top: 8px; margin-top: 4px; font-size: 13px;">
+                               ការប្រាក់សរុបត្រូវបង់៖ <strong id="redeem-interest-due" style="color: var(--danger); font-size: 14px;">--</strong>
+                           </div>
+                           <div style="grid-column: span 2; border-top: 1.5px solid #333; padding-top: 8px; margin-top: 4px; font-size: 16px; display: flex; justify-content: space-between;">
+                               <span style="font-weight: bold; color: #000;">ទឹកប្រាក់ត្រូវបង់សរុប៖</span> <strong id="redeem-total-due" style="color: #000; font-size: 18px;">--</strong>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel-redeem">បោះបង់</button>
+                    <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, var(--success), #52b788); color:#fff; border:none; box-shadow:0 4px 15px rgba(46,196,182,0.3);">បញ្ជាក់ការលោះវិញ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Hidden Printable Area for System print (Only displays when window.print() is called) -->
+    <div id="print-receipt-container" class="print-only">
+        <!-- Filled dynamically by JavaScript prior to executing print -->
+    </div>
+
+    <!-- Load main script -->
+    <script src="app.js"></script>
+</body>
+</html>
