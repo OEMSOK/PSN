@@ -7,7 +7,7 @@
 const state = {
     records: [],
     settings: {
-        shopName: "ហាងបញ្ចាំ មាស-ប្លាទីន ស្រីមុំ",
+        shopName: "ហាងបញ្ចាំ មាស-ប្លាទីន សុខ ស៊ីណាត",
         shopPhone: "012 999 888 / 097 555 444",
         shopAddress: "ផ្លូវជាតិលេខ១ ភូមិព្រៃម្នាស់ ឃុំព្រៃម្នាស់ ស្រុកកណ្ដាលស្ទឹង ខេត្តកណ្ដាល",
         receiptFooter: "សូមអរគុណ! សូមរក្សាទុកវិក្កយបត្រនេះឱ្យបានល្អ។"
@@ -76,9 +76,10 @@ function formatWeight(chi, hun, ly) {
 }
 
 // Database Operations (Local Storage)
+// Database Operations (Firebase Sync & Local Storage Cache)
 const DB = {
     init() {
-        // Load Settings
+        // Load Settings fallback cache
         const savedSettings = localStorage.getItem('pawn_shop_settings');
         if (savedSettings) {
             state.settings = JSON.parse(savedSettings);
@@ -86,7 +87,7 @@ const DB = {
             localStorage.setItem('pawn_shop_settings', JSON.stringify(state.settings));
         }
 
-        // Load Records
+        // Load Records fallback cache
         const savedRecords = localStorage.getItem('pawn_records');
         if (savedRecords) {
             state.records = JSON.parse(savedRecords);
@@ -132,10 +133,87 @@ const DB = {
             ];
             localStorage.setItem('pawn_records', JSON.stringify(state.records));
         }
+
+        // Initialize Real-time cloud sync with Firebase
+        this.initFirebase();
+    },
+
+    initFirebase() {
+        const firebaseConfig = {
+            apiKey: "AIzaSyApBSgdTO5O5PkFT1EueYxHSL9ODNDZ8ZQ",
+            authDomain: "psn-2026.firebaseapp.com",
+            databaseURL: "https://psn-2026-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "psn-2026",
+            storageBucket: "psn-2026.firebasestorage.app",
+            messagingSenderId: "674039383293",
+            appId: "1:674039383293:web:0b5aaa9736ef96b5452a94",
+            measurementId: "G-M6MVGX2647"
+        };
+
+        try {
+            // Initialize Firebase Compat
+            firebase.initializeApp(firebaseConfig);
+            window.firebaseDb = firebase.database();
+
+            // 1. Sync Shop Settings
+            window.firebaseDb.ref('pawn_shop_settings').on('value', (snapshot) => {
+                const val = snapshot.val();
+                if (val) {
+                    state.settings = val;
+                    localStorage.setItem('pawn_shop_settings', JSON.stringify(state.settings));
+                    
+                    // Sync UI text labels
+                    document.getElementById('sidebar-shop-name').textContent = state.settings.shopName;
+                    document.getElementById('topbar-shop-name').textContent = state.settings.shopName;
+                    
+                    // Prefill form fields if they are loaded
+                    const settingsName = document.getElementById('settings-shop-name');
+                    if (settingsName) settingsName.value = state.settings.shopName;
+                    const settingsPhone = document.getElementById('settings-shop-phone');
+                    if (settingsPhone) settingsPhone.value = state.settings.shopPhone;
+                    const settingsAddr = document.getElementById('settings-shop-address');
+                    if (settingsAddr) settingsAddr.value = state.settings.shopAddress;
+                    const settingsFooter = document.getElementById('settings-receipt-footer');
+                    if (settingsFooter) settingsFooter.value = state.settings.receiptFooter;
+                } else {
+                    // Bootstrap Firebase database if empty
+                    window.firebaseDb.ref('pawn_shop_settings').set(state.settings);
+                }
+            });
+
+            // 2. Sync Pawn Records
+            window.firebaseDb.ref('pawn_records').on('value', (snapshot) => {
+                const val = snapshot.val();
+                if (val) {
+                    state.records = val;
+                    localStorage.setItem('pawn_records', JSON.stringify(state.records));
+                    
+                    // Trigger real-time UI rebuild across all machines
+                    updateDashboardStats();
+                    populateRecordsTable();
+                    populateRecentPawnsTable();
+                    populateRecentRedemptionsTable();
+                } else {
+                    // Bootstrap Firebase database if empty
+                    if (state.records && state.records.length > 0) {
+                        window.firebaseDb.ref('pawn_records').set(state.records);
+                    }
+                }
+            });
+
+        } catch (error) {
+            console.error("Firebase database could not initialize. Running in Offline Cache mode.", error);
+        }
     },
 
     saveRecords() {
         localStorage.setItem('pawn_records', JSON.stringify(state.records));
+        
+        // Sync to Firebase Cloud
+        if (window.firebaseDb) {
+            window.firebaseDb.ref('pawn_records').set(state.records);
+        }
+        
         updateDashboardStats();
         populateRecordsTable();
         populateRecentPawnsTable();
@@ -144,13 +222,24 @@ const DB = {
 
     saveSettings() {
         localStorage.setItem('pawn_shop_settings', JSON.stringify(state.settings));
+        
+        // Sync to Firebase Cloud
+        if (window.firebaseDb) {
+            window.firebaseDb.ref('pawn_shop_settings').set(state.settings);
+        }
+        
         // Update all UI shop labels
         document.getElementById('sidebar-shop-name').textContent = state.settings.shopName;
         document.getElementById('topbar-shop-name').textContent = state.settings.shopName;
-        document.getElementById('settings-shop-name').value = state.settings.shopName;
-        document.getElementById('settings-shop-phone').value = state.settings.shopPhone;
-        document.getElementById('settings-shop-address').value = state.settings.shopAddress;
-        document.getElementById('settings-receipt-footer').value = state.settings.receiptFooter;
+        
+        const nameInput = document.getElementById('settings-shop-name');
+        if (nameInput) nameInput.value = state.settings.shopName;
+        const phoneInput = document.getElementById('settings-shop-phone');
+        if (phoneInput) phoneInput.value = state.settings.shopPhone;
+        const addrInput = document.getElementById('settings-shop-address');
+        if (addrInput) addrInput.value = state.settings.shopAddress;
+        const footerInput = document.getElementById('settings-receipt-footer');
+        if (footerInput) footerInput.value = state.settings.receiptFooter;
     },
 
     generateNextSerial() {
@@ -850,7 +939,363 @@ function initSettingsForm() {
             DB.saveSettings();
             alert("រក្សាទុកព័ត៌មានហាងដោយជោគជ័យ!");
         });
+        
+        // Backup CSV button
+        const backupBtn = document.getElementById('btn-backup-csv');
+        if (backupBtn) {
+            backupBtn.addEventListener('click', backupToCSV);
+        }
+        
+        // Restore CSV buttons
+        const triggerRestoreBtn = document.getElementById('btn-trigger-restore-csv');
+        const fileInput = document.getElementById('file-restore-csv');
+        if (triggerRestoreBtn && fileInput) {
+            triggerRestoreBtn.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', handleCSVRestore);
+        }
+
+        // Change System Password Form submission
+        const passwordForm = document.getElementById('system-password-form');
+        if (passwordForm) {
+            passwordForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const oldPw = document.getElementById('settings-old-password').value;
+                const newPw = document.getElementById('settings-new-password').value;
+                const confirmPw = document.getElementById('settings-confirm-password').value;
+                
+                const currentPassword = state.settings.systemPassword || "1234";
+                
+                if (oldPw !== currentPassword) {
+                    alert("លេខកូដសម្ងាត់ចាស់មិនត្រឹមត្រូវឡើយ!");
+                    return;
+                }
+                
+                if (newPw.length < 4) {
+                    alert("លេខកូដសម្ងាត់ថ្មីត្រូវតែមានយ៉ាងតិច ៤ ខ្ទង់!");
+                    return;
+                }
+                
+                if (newPw !== confirmPw) {
+                    alert("លេខកូដសម្ងាត់ថ្មីទាំងពីរមិនដូចគ្នាឡើយ!");
+                    return;
+                }
+                
+                state.settings.systemPassword = newPw;
+                DB.saveSettings();
+                
+                alert("បានផ្លាស់ប្តូរលេខកូដសម្ងាត់ប្រព័ន្ធដោយជោគជ័យ!");
+                passwordForm.reset();
+            });
+        }
     }
+}
+
+// Lock Screen PIN System
+// Lock Screen Password System
+function initLockScreen() {
+    const lockScreen = document.getElementById('lock-screen');
+    if (!lockScreen) return;
+    
+    // Set default settings password to APP2026@OEMSOK if absent or legacy
+    if (!state.settings.systemPassword || state.settings.systemPassword === "1234") {
+        state.settings.systemPassword = "APP2026@OEMSOK";
+        DB.saveSettings();
+    }
+    
+    const pwdInput = document.getElementById('login-password-input');
+    const toggleBtn = document.getElementById('btn-toggle-login-pwd');
+    const submitBtn = document.getElementById('btn-login-submit');
+    
+    if (toggleBtn && pwdInput) {
+        toggleBtn.addEventListener('click', () => {
+            const type = pwdInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            pwdInput.setAttribute('type', type);
+            const icon = toggleBtn.querySelector('i');
+            if (icon) {
+                icon.className = type === 'password' ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
+            }
+        });
+    }
+    
+    function submitPassword() {
+        if (!pwdInput) return;
+        const enteredPassword = pwdInput.value;
+        const correctPassword = state.settings.systemPassword || "APP2026@OEMSOK";
+        
+        if (enteredPassword === correctPassword) {
+            lockScreen.classList.add('unlocked');
+            pwdInput.value = "";
+            
+            // Start the idle timer on successful unlock
+            resetIdleTimer();
+        } else {
+            // Shake card for feedback
+            const card = lockScreen.querySelector('.lock-card');
+            if (card) {
+                card.classList.add('shake');
+                setTimeout(() => card.classList.remove('shake'), 400);
+            }
+            pwdInput.focus();
+        }
+    }
+    
+    if (submitBtn) {
+        submitBtn.addEventListener('click', submitPassword);
+    }
+    
+    if (pwdInput) {
+        pwdInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                submitPassword();
+            }
+        });
+        
+        // Auto-focus on password field
+        setTimeout(() => pwdInput.focus(), 500);
+    }
+    
+    // Setup activity listeners to reset timer
+    const activityEvents = ['mousemove', 'mousedown', 'keypress', 'touchstart', 'scroll', 'click'];
+    activityEvents.forEach(evt => {
+        document.addEventListener(evt, resetIdleTimer, { capture: true, passive: true });
+    });
+}
+
+// Idle Auto Logout System
+let idleTimer = null;
+
+function resetIdleTimer() {
+    const lockScreen = document.getElementById('lock-screen');
+    if (!lockScreen || !lockScreen.classList.contains('unlocked')) {
+        // If locked, we don't start or reset the idle timer
+        if (idleTimer) {
+            clearTimeout(idleTimer);
+            idleTimer = null;
+        }
+        return;
+    }
+    
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(logoutSystem, 15000); // 15 seconds
+}
+
+function logoutSystem() {
+    const lockScreen = document.getElementById('lock-screen');
+    if (lockScreen && lockScreen.classList.contains('unlocked')) {
+        lockScreen.classList.remove('unlocked');
+        
+        // Clear login input
+        const pwdInput = document.getElementById('login-password-input');
+        if (pwdInput) {
+            pwdInput.value = "";
+            pwdInput.setAttribute('type', 'password');
+            const toggleBtn = document.getElementById('btn-toggle-login-pwd');
+            if (toggleBtn) {
+                const icon = toggleBtn.querySelector('i');
+                if (icon) icon.className = 'fa-solid fa-eye';
+            }
+            setTimeout(() => pwdInput.focus(), 500);
+        }
+    }
+    
+    if (idleTimer) {
+        clearTimeout(idleTimer);
+        idleTimer = null;
+    }
+}
+
+function backupToCSV() {
+    if (state.records.length === 0) {
+        alert("មិនមានទិន្នន័យអ្នកបញ្ចាំដើម្បីចម្លងទុកឡើយ!");
+        return;
+    }
+    
+    // Headers list matching the fields
+    const headers = [
+        "លេខសម្គាល់ (ID)",
+        "ឈ្មោះអ្នកបញ្ចាំ (Name)",
+        "លេខទូរសព្ទ (Phone)",
+        "អាសយដ្ឋាន (Address)",
+        "ប្រភេទគ្រឿងបញ្ចាំ (Item Type)",
+        "សម្គាល់គ្រឿងបញ្ចាំ (Item Description)",
+        "ទម្ងន់ ជី (Chi)",
+        "ទម្ងន់ ហ៊ុន (Hun)",
+        "ទម្ងន់ លី (Ly)",
+        "ប្រាក់ខ្ចី (Capital Amount)",
+        "រូបិយប័ណ្ណ (Currency)",
+        "ការប្រាក់ក្នុង១ថ្ងៃ (Daily Interest)",
+        "ថ្ងៃបញ្ចាំ (Pawn Date)",
+        "ថ្ងៃកំណត់លោះ (Due Date)",
+        "ស្ថានភាព (Status)",
+        "ថ្ងៃបង្កើត (Created Date)",
+        "កំណត់សម្គាល់ (Notes)",
+        "ថ្ងៃលោះវិញ (Redemption Date)",
+        "ការប្រាក់សរុបដែលបានបង់ (Redemption Interest Paid)"
+    ];
+    
+    const fields = [
+        "id", "customerName", "customerPhone", "customerAddress", 
+        "itemType", "itemDesc", "weightChi", "weightHun", "weightLy", 
+        "amount", "currency", "interestRate", "pawnDate", "dueDate", 
+        "status", "createdDate", "notes", "redeemedDate", "redeemedInterest"
+    ];
+    
+    // Helper to escape values for CSV compatibility
+    const escapeCSV = (val) => {
+        if (val === null || val === undefined) return '';
+        let str = String(val);
+        // Replace single double-quote with two double-quotes
+        str = str.replace(/"/g, '""');
+        // Wrap in quotes if it contains comma, double-quote, or newline
+        if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+            str = `"${str}"`;
+        }
+        return str;
+    };
+    
+    // Build CSV Content with UTF-8 BOM so Excel opens Khmer characters correctly!
+    let csvContent = '\uFEFF'; 
+    csvContent += headers.map(escapeCSV).join(',') + '\r\n';
+    
+    state.records.forEach(r => {
+        const row = fields.map(field => escapeCSV(r[field]));
+        csvContent += row.join(',') + '\r\n';
+    });
+    
+    // Create download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    
+    const today = new Date().toISOString().split('T')[0];
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Pawn_Backup_${today}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function parseCSV(text) {
+    const lines = [];
+    let row = [""];
+    let inQuotes = false;
+    
+    // Remove BOM if present
+    if (text.startsWith('\uFEFF')) {
+        text = text.substring(1);
+    }
+    
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const nextChar = text[i + 1];
+        
+        if (inQuotes) {
+            if (char === '"') {
+                if (nextChar === '"') {
+                    // Escaped quote
+                    row[row.length - 1] += '"';
+                    i++; // skip next quote
+                } else {
+                    // Ending quote
+                    inQuotes = false;
+                }
+            } else {
+                row[row.length - 1] += char;
+            }
+        } else {
+            if (char === '"') {
+                inQuotes = true;
+            } else if (char === ',') {
+                row.push("");
+            } else if (char === '\r' || char === '\n') {
+                // End of row
+                lines.push(row);
+                row = [""];
+                // Handle CRLF pairs: if current is \r and next is \n, skip \n
+                if (char === '\r' && nextChar === '\n') {
+                    i++;
+                }
+            } else {
+                row[row.length - 1] += char;
+            }
+        }
+    }
+    // Push last row if not empty
+    if (row.length > 1 || row[0] !== "") {
+        lines.push(row);
+    }
+    return lines;
+}
+
+function handleCSVRestore(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+        try {
+            const text = evt.target.result;
+            const rows = parseCSV(text);
+            
+            if (rows.length < 2) {
+                alert("ឯកសារ .CSV គ្មានទិន្នន័យ ឬខុសទម្រង់កំណត់ឡើយ!");
+                return;
+            }
+            
+            // Header is rows[0]. Data rows start at index 1.
+            const parsedRecords = [];
+            const fields = [
+                "id", "customerName", "customerPhone", "customerAddress", 
+                "itemType", "itemDesc", "weightChi", "weightHun", "weightLy", 
+                "amount", "currency", "interestRate", "pawnDate", "dueDate", 
+                "status", "createdDate", "notes", "redeemedDate", "redeemedInterest"
+            ];
+            
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                // Skip empty lines at end of CSV
+                if (row.length === 1 && row[0] === "") continue;
+                
+                const rec = {};
+                fields.forEach((field, colIdx) => {
+                    let val = row[colIdx] !== undefined ? row[colIdx].trim() : '';
+                    
+                    // Convert numeric values
+                    if (["weightChi", "weightHun", "weightLy", "amount", "interestRate", "redeemedInterest"].includes(field)) {
+                        val = val === '' ? 0 : Number(val) || 0;
+                    }
+                    rec[field] = val;
+                });
+                
+                // Simple validation: must have ID and Name
+                if (rec.id && rec.customerName) {
+                    parsedRecords.push(rec);
+                }
+            }
+            
+            if (parsedRecords.length === 0) {
+                alert("មិនអាចស្វែងរកទិន្នន័យអ្នកបញ្ចាំដែលមានសុពលភាពឡើយ!");
+                return;
+            }
+            
+            if (confirm(`បានរកឃើញទិន្នន័យអ្នកបញ្ចាំចំនួន ${parsedRecords.length} នាក់។ តើលោកអ្នកពិតជាចង់ជំនួសទិន្នន័យបច្ចុប្បន្នទាំងអស់ដោយទិន្នន័យថ្មីនេះមែនទេ?`)) {
+                state.records = parsedRecords;
+                DB.saveRecords();
+                alert("បានស្ដារទិន្នន័យដោយជោគជ័យ!");
+                
+                // Switch to dashboard to reflect changes immediately
+                Navigation.switchTab('dashboard');
+                
+                // Clear file input
+                e.target.value = '';
+            }
+        } catch (err) {
+            console.error(err);
+            alert("មានបញ្ហាក្នុងការអានឯកសារ .CSV: " + err.message);
+        }
+    };
+    reader.readAsText(file, 'utf-8');
 }
 
 function printRecordsReport() {
@@ -997,6 +1442,7 @@ function printRecordsReport() {
     
     // Inject and trigger browser print dialog
     const printContainer = document.getElementById('print-receipt-container');
+    printContainer.className = 'report-print';
     printContainer.innerHTML = reportHTML;
     window.print();
 }
@@ -1015,7 +1461,7 @@ function buildSystemReceiptHTML(record, isPreview = true) {
     
     // COPY 1: Full details
     const copy1 = `
-        <div class="receipt-card">
+        <div class="receipt-card receipt-card-copy1">
             <div class="receipt-card-header">
                 <h2>${state.settings.shopName}</h2>
                 <p><i class="fa-solid fa-phone"></i> ទូរសព្ទ៖ ${state.settings.shopPhone}</p>
@@ -1024,10 +1470,9 @@ function buildSystemReceiptHTML(record, isPreview = true) {
             </div>
             <div class="receipt-grid">
                 <div class="receipt-row"><span>លេខសម្គាល់៖</span><strong>${record.id}</strong></div>
-                <div class="receipt-row"><span>ស្ថានភាព៖</span><strong>${record.status}</strong></div>
                 <div class="receipt-row"><span>ឈ្មោះអ្នកបញ្ចាំ៖</span><strong>${record.customerName}</strong></div>
                 <div class="receipt-row"><span>លេខទូរសព្ទ៖</span><strong>${record.customerPhone}</strong></div>
-                <div class="receipt-row full-width"><span>អាសយដ្ឋាន៖</span><strong>${record.customerAddress}</strong></div>
+                <div class="receipt-row"><span>អាសយដ្ឋាន៖</span><strong>${record.customerAddress}</strong></div>
                 
                 <div class="receipt-row"><span>គ្រឿងបញ្ចាំ៖</span><strong>${record.itemType} (${record.itemDesc})</strong></div>
                 <div class="receipt-row"><span>ទម្ងន់៖</span><strong>${totalWeight}</strong></div>
@@ -1366,6 +1811,7 @@ function executeSystemPrint() {
     if (!state.currentRecord) return;
     
     const printContainer = document.getElementById('print-receipt-container');
+    printContainer.className = 'receipt-print';
     printContainer.innerHTML = buildSystemReceiptHTML(state.currentRecord, false);
     
     window.print();
@@ -1433,7 +1879,7 @@ function renderReceiptToCanvas(canvas, record, copyNumber, width, isSecondPass =
     if (copyNumber === 1) {
         // Copy 1 standard full items
         const grid = [
-            ["លេខសម្គាល់៖", record.id, "ស្ថានភាព៖", record.status],
+            ["លេខសម្គាល់៖", record.id, "", ""],
             ["ឈ្មោះអ្នកបញ្ចាំ៖", record.customerName, "លេខទូរសព្ទ៖", record.customerPhone],
             ["អាសយដ្ឋាន៖", record.customerAddress, "", ""],
             ["គ្រឿងបញ្ចាំ៖", `${record.itemType} (${record.itemDesc})`, "ទម្ងន់សរុប៖", formatWeight(record.weightChi, record.weightHun, record.weightLy)],
@@ -1898,6 +2344,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 9. Reset form defaults on startup
     resetNewPawnForm();
+
+    // 10. Start system password lock screen
+    initLockScreen();
     
     // Sync shop name labels on sidebar
     document.getElementById('sidebar-shop-name').textContent = state.settings.shopName;

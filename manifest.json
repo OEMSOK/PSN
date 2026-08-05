@@ -1,0 +1,18 @@
+{
+  "name": "ប្រព័ន្ធគ្រប់គ្រងបញ្ចាំ មាស-ប្លាទីន សុខ ស៊ីណាត",
+  "short_name": "សុខ ស៊ីណាត បញ្ចាំ",
+  "description": "ប្រព័ន្ធគ្រប់គ្រងការបញ្ចាំមាស និងប្លាទីន សុខ ស៊ីណាត",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#1e222a",
+  "theme_color": "#d4af37",
+  "icons": [
+    {
+      "src": "logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
