@@ -1076,7 +1076,7 @@ function resetIdleTimer() {
     }
     
     clearTimeout(idleTimer);
-    idleTimer = setTimeout(logoutSystem, 15000); // 15 seconds
+    idleTimer = setTimeout(logoutSystem, 60000); // 1 minute (60 seconds)
 }
 
 function logoutSystem() {
