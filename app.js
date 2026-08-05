@@ -1462,7 +1462,8 @@ function buildSystemReceiptHTML(record, isPreview = true) {
     // COPY 1: Full details
     const copy1 = `
         <div class="receipt-card receipt-card-copy1">
-            <div class="receipt-card-header">
+            <div class="receipt-card-header" style="text-align: center;">
+                <img src="logo.jpg" alt="Logo" style="width: 45px; height: 45px; object-fit: cover; border-radius: 50%; margin-bottom: 4px; display: inline-block; border: 1px solid #d4af37;" />
                 <h2>${state.settings.shopName}</h2>
                 <p><i class="fa-solid fa-phone"></i> ទូរសព្ទ៖ ${state.settings.shopPhone}</p>
                 <p><i class="fa-solid fa-location-dot"></i> អាសយដ្ឋាន៖ ${state.settings.shopAddress}</p>
@@ -1499,7 +1500,8 @@ function buildSystemReceiptHTML(record, isPreview = true) {
     // COPY 2: Summary details (large ID/SN)
     const copy2 = `
         <div class="receipt-card receipt-card-copy2">
-            <div class="receipt-card-header">
+            <div class="receipt-card-header" style="text-align: center;">
+                <img src="logo.jpg" alt="Logo" style="width: 45px; height: 45px; object-fit: cover; border-radius: 50%; margin-bottom: 4px; display: inline-block; border: 1px solid #d4af37;" />
                 <h2>${state.settings.shopName}</h2>
                 <p><i class="fa-solid fa-phone"></i> ទូរសព្ទ៖ ${state.settings.shopPhone}</p>
                 <p><i class="fa-solid fa-location-dot"></i> អាសយដ្ឋាន៖ ${state.settings.shopAddress}</p>
@@ -2351,4 +2353,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Sync shop name labels on sidebar
     document.getElementById('sidebar-shop-name').textContent = state.settings.shopName;
     document.getElementById('topbar-shop-name').textContent = state.settings.shopName;
+
+    // 11. Register Service Worker for PWA installability
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js')
+            .then(reg => console.log('Service Worker registered successfully:', reg.scope))
+            .catch(err => console.error('Service Worker registration failed:', err));
+    }
 });
